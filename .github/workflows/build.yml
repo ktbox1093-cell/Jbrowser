@@ -1,4 +1,4 @@
-      - name: Compilar
+       name: Compilar
         working-directory: client
         run: |
           mkdir -p build/classes
