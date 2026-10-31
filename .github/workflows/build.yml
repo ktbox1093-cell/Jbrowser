@@ -24,7 +24,7 @@ jobs:
           mkdir -p build/classes
           javac -source 1.4 -target 1.4 -classpath ../tools/cldc.jar:../tools/midp.jar -d build/classes src/JBrowser.java
           jar cfm build/in.jar manifest.mf -C build/classes .
-        - name: Preverificar con ProGuard
+      - name: Preverificar con ProGuard
         working-directory: client
         run: |
           ROOT=$(cd .. && pwd)
