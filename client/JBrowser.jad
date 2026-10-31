@@ -1,1 +1,9 @@
-
+MIDlet-1: JBrowser,,JBrowser
+MIDlet-Name: JBrowser
+MIDlet-Vendor: JBrowser
+MIDlet-Version: 1.0.0
+MIDlet-Jar-URL: JBrowser.jar
+MIDlet-Jar-Size: 0
+MicroEdition-Configuration: CLDC-1.1
+MicroEdition-Profile: MIDP-2.1
+MIDlet-Permissions: javax.microedition.io.Connector.http
