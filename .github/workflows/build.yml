@@ -22,7 +22,7 @@ jobs:
         working-directory: client
         run: |
           mkdir -p build/classes
-          javac -source 1.4 -target 1.4 -bootclasspath ../tools/cldc.jar:../tools/midp.jar -d build/classes src/JBrowser.java
+          javac -source 1.4 -target 1.4 -classpath ../tools/cldc.jar:../tools/midp.jar -d build/classes src/JBrowser.java
           jar cfm build/in.jar manifest.mf -C build/classes .
       - name: Preverificar con ProGuard
         working-directory: client
@@ -32,6 +32,7 @@ jobs:
             '-outjars JBrowser.jar' \
             '-libraryjars ../tools/cldc.jar' \
             '-libraryjars ../tools/midp.jar' \
+            "-libraryjars $JAVA_HOME/jre/lib/rt.jar" \
             '-microedition' '-dontobfuscate' '-dontoptimize' '-dontshrink' \
             '-dontnote' '-dontwarn' '-keep public class JBrowser' > build/pg.conf
           sh ../tools/proguard-7.4.2/bin/proguard.sh @build/pg.conf
