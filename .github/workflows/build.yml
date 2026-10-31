@@ -24,18 +24,20 @@ jobs:
           mkdir -p build/classes
           javac -source 1.4 -target 1.4 -classpath ../tools/cldc.jar:../tools/midp.jar -d build/classes src/JBrowser.java
           jar cfm build/in.jar manifest.mf -C build/classes .
-      - name: Preverificar con ProGuard
+        - name: Preverificar con ProGuard
         working-directory: client
         run: |
+          ROOT=$(cd .. && pwd)
+          CL=$(pwd)
           printf '%s\n' \
-            '-injars build/in.jar' \
-            '-outjars JBrowser.jar' \
-            '-libraryjars ../tools/cldc.jar' \
-            '-libraryjars ../tools/midp.jar' \
+            "-injars $CL/build/in.jar" \
+            "-outjars $CL/JBrowser.jar" \
+            "-libraryjars $ROOT/tools/cldc.jar" \
+            "-libraryjars $ROOT/tools/midp.jar" \
             "-libraryjars $JAVA_HOME/jre/lib/rt.jar" \
             '-microedition' '-dontobfuscate' '-dontoptimize' '-dontshrink' \
             '-dontnote' '-dontwarn' '-keep public class JBrowser' > build/pg.conf
-          sh ../tools/proguard-7.4.2/bin/proguard.sh @build/pg.conf
+          sh $ROOT/tools/proguard-7.4.2/bin/proguard.sh @build/pg.conf
           SIZE=$(wc -c < JBrowser.jar)
           sed -i "s/^MIDlet-Jar-Size:.*/MIDlet-Jar-Size: $SIZE/" JBrowser.jad
           ls -l JBrowser.jar JBrowser.jad
