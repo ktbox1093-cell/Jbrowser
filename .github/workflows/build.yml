@@ -1,1 +1,46 @@
-
+name: build-jar
+on:
+  push:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+      - name: Descargar librerias CLDC/MIDP y ProGuard
+        run: |
+          mkdir -p tools
+          curl -fL -o tools/cldc.jar https://repo1.maven.org/maven2/org/microemu/microemu-cldc/2.0.4/microemu-cldc-2.0.4.jar
+          curl -fL -o tools/midp.jar https://repo1.maven.org/maven2/org/microemu/microemu-midp/2.0.4/microemu-midp-2.0.4.jar
+          curl -fL -o tools/proguard.zip https://github.com/Guardsquare/proguard/releases/download/v7.4.2/proguard-7.4.2.zip
+          unzip -q tools/proguard.zip -d tools
+      - name: Compilar
+        working-directory: client
+        run: |
+          mkdir -p build/classes
+          javac -source 1.4 -target 1.4 -bootclasspath ../tools/cldc.jar:../tools/midp.jar -d build/classes src/JBrowser.java
+          jar cfm build/in.jar manifest.mf -C build/classes .
+      - name: Preverificar con ProGuard
+        working-directory: client
+        run: |
+          printf '%s\n' \
+            '-injars build/in.jar' \
+            '-outjars JBrowser.jar' \
+            '-libraryjars ../tools/cldc.jar' \
+            '-libraryjars ../tools/midp.jar' \
+            '-microedition' '-dontobfuscate' '-dontoptimize' '-dontshrink' \
+            '-dontnote' '-dontwarn' '-keep public class JBrowser' > build/pg.conf
+          sh ../tools/proguard-7.4.2/bin/proguard.sh @build/pg.conf
+          SIZE=$(wc -c < JBrowser.jar)
+          sed -i "s/^MIDlet-Jar-Size:.*/MIDlet-Jar-Size: $SIZE/" JBrowser.jad
+          ls -l JBrowser.jar JBrowser.jad
+      - uses: actions/upload-artifact@v4
+        with:
+          name: JBrowser-E72
+          path: |
+            client/JBrowser.jar
+            client/JBrowser.jad
